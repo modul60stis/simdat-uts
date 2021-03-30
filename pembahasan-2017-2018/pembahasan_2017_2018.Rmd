@@ -1,0 +1,203 @@
+---
+title: "Pembahasan UTS 2017/2018"
+author: "Tim Modul 60"
+date: "3/30/2021"
+output: rmdformats::downcute
+---
+
+```{r}
+library(ggplot2)
+```
+
+# Nomor 1
+
+## Soal
+
+Jelaskan tujuan dari simulasi, serta berikan minimal 2 contoh simulasi di bidang statistika.
+
+## Tujuan Simulasi
+
+1. Untuk menguji setiap aspek dari perubahan yang diinginkan tanpa menempatkan objek yang dipelajari pada posisi dimaksud dan hasil simulasi memungkinan kita memilih ukuran yang tepat. Contoh kasusnya, simulasi biasanya digunakan untuk menguji kekuatan rancang bangun suatu konstruksi. Misalnya jembatan dapat disimulasikan sebelum benar-benar memulai pembangunan riil di lapangan. 
+2. Untuk mengetahui mengapa suatu fenomena muncul. Mengapa suatu proses tidak berjalan sebagaimana mestinya. Anomali yang terjadi ada sistem yang disimulasi dapat diantisipasi sebelum diimplementasikan.
+3. Untuk mempelajari atau mengeksplorasi kemungkinan-kemungkinan pengembangan tanpa banyak mengeluarkan biaya dengan mengatur segala kemungkinan nilai-nilai dalam simulasi.
+4. Untuk mempercepat atau memperlambat suatu proses yang memungkinkan kita mengamatinya secara keseluruhan.
+5. Untuk mengetahui hubungan tentang variabel-variabel yang mempengaruhi suatu sistem yang kompleks.
+
+## Contoh Simulasi di bidang Statistika
+
+1. Membangkitkan data dengan distribusi dan parameter yang diketahui
+2. Memvisualisasikan sifat-sifat distribusi atau uji statistika sehingga menjadi lebih mudah dipahami.
+3. Uji statistika berbasis simulasi, jika dukungan teori tentang distribusi tidak cukup.
+
+
+# Nomor 2
+
+## Soal
+
+Pada suatu pengembangan algoritma khusus, anda membutuhkan untuk membangkitkan data berdistribusi F. Jelaskan :
+
+a. Teori dari distribusi F
+b. Pseudocode untuk membangkitkan data berdistribusi F
+c. Implementasikan dengan R
+
+## Teori Distribusi F
+
+Distribusi $F$ adalah distribusi dari semua kemungkinan nilai dari $f$ statitistic dengan $v_1 = n_1 -1$ dan $v_2 = n_2 - 1$. Kurva dari distribusi $F$ sangat bergantung pada degree of freedom, $v_1$ dan $v_2$. Hal yang perlu diingat bahwa $F_{23, 27}$ tidak sama dengan $F_{27, 23}$. Berikut pdf dari distribusi $F_{v_1,v_2}$
+
+$$
+f(x) = \frac{\Gamma(\frac{\nu_{1} + \nu_{2}} {2}) (\frac{\nu_{1}} 
+{\nu_{2}})^{\frac{\nu_{1}} {2}} x^{\frac{\nu_{1}} {2} - 1 }} 
+{\Gamma(\frac{\nu_{1}} {2}) \Gamma(\frac{\nu_{2}} {2}) 
+(1 + \frac{\nu_{1}x} {\nu_{2}})^{\frac{\nu_{1} + \nu_{2}} {2}} }
+$$
+
+dengan 
+
+$$
+\Gamma(a) = \int_{0}^{\infty} {t^{a-1}e^{-t}dt}
+$$
+
+Selain itu distribusi $F$ juga dapat diperoleh dari transformasi distribusi Chi-Square. Misalnya $X_1$ ~  $\chi_{v1}^2$ dan $X_2$ ~ $\chi_{v2}^2$, maka
+
+$$
+Y = \frac{X_1/v_1}{X_2/v_2}\text{~}F_{v_1,v_2}
+$$
+
+## Pseudocode
+
+1. Bangkitkan $X_1$ dan $\chi_{v2}^2$
+2. Bangkitkan $X_2$ dan $\chi_{v2}^2$
+3. Lakukan tranformasi
+      $$
+Y = \frac{X_1/v_1}{X_2/v_2}
+$$
+4. Maka $Y$ adalah data dari $F_{v_1,V_2}$
+
+## Implementasi R
+
+### Membangkitkan Standar Normal
+```{r}
+rand.z <- function(n){
+      u1 <- runif(ceiling(n/2), 0, 1)
+      u2 <- runif(ceiling(n/2), 0, 1)
+      
+      z1 <- sqrt(-2 * log(u1)) * cos(2 * pi * u2)
+      z2 <- sqrt(-2 * log(u1)) * sin(2 * pi * u2)
+      
+      y <- c(z1, z2)
+      y[1:n]
+}
+```
+
+### Membangkitkan Chi Square
+```{r}
+rand.chi <- function(n, v){
+      y <- rep(0, n)
+      for(i in 1:v){
+            z <- rand.z(n)
+            y <- y + z^2
+      }
+      y
+}
+```
+
+### Membangkitkan $F$
+```{r}
+rand.f <- function(n, v1, v2){
+      chi1 <- rand.chi(n, v1)
+      chi2 <- rand.chi(n, v2)
+      (chi1/v1)/(chi2/v2)
+}
+```
+
+### Mencoba Fungsi 
+
+Misalkan kita ingin membangkitkan 10000 data random $F_{27,23}$
+```{r}
+df1 <- 27
+df2 <- 23
+f <- rand.f(10000, df1, df2)
+head(f, 10)
+```
+
+### Visualisasi Hasil Random
+```{r}
+ggplot() +
+      geom_density(data = data.frame(x = f), 
+                   aes(x, color = "Hasil random"), size = 1) +
+      stat_function(fun = stats::df, n = 10000, args = list(df1 = df1, df2 = df2), 
+                                size = 1, aes(color = "true distribution")) +
+      labs(x = "", y = "", title = "F(27, 23) Distribution dengan n = 10000") +
+      theme_minimal() +
+      theme(legend.position = "bottom",
+            legend.title = element_blank(),
+            legend.box.margin = margin(-20, 0, 10, 0),
+            plot.title = element_text(hjust = 0.5))
+```
+
+Terlihat bahwa hasil random sudah sangat menyerupai distribusi yang sebenarnya
+
+# Nomor 3
+
+## Soal
+
+Buatlah code untuk pseudocode di bawah ini dalam R Prosedur menghitung integral $I=\int_{x_0}^{x_1}g(x)dx$  adalah:
+
+a. Bangkitkan $X_i$ ~ $U(x_0, x_1)$ untuk $i=1,2,...,N$ dan $N$ yang relative besar.
+b. Hitung rata-rata $g(x)$, yaitu $\overline{g(x)}$
+c. Hitung $𝐼=(𝑥_1 − 𝑥_0) \overline{g(x)}$
+
+## Jawaban
+
+### Hitung Integral
+```{r}
+integral <- function(gx, x0, x1, n = 100000){
+      x <- runif(n, x0, x1) # soal bagian a
+      rata2 <- mean(gx(x)) # soal bagian b
+      (x1 - x0)*rata2 # soal bagian c
+}
+```
+
+### Mencoba Fungsi
+
+Misalnya kita ingin mencari nilai dari $I=\int_{0}^{2}x^2dx$
+
+#### Definisikan Fungsi $g(x)$
+```{r}
+gx <- function(x) x^2
+```
+
+#### Hitung Integral
+```{r}
+set.seed(27)
+x0 <- 0
+x1 <- 2
+integral(gx, x0, x1)
+```
+
+#### Fungsi Integral Bawaan R
+```{r}
+integrate(gx, x0, x1)
+```
+
+Terlihat bahwa perbedaan antara fungsi buatan sendiri dengan fungsi bawaan R sangat kecil. Ketika $N$ semakin besar maka perbedaannya maka akan semakin kecil lagi.
+
+
+# Nomor 4
+
+## Soal
+
+Buat algoritma boostrapping untuk pendugaan parameter regresi linear sederhana. Lakukan simulasi yang memperlihatkan efek dari asumsi normalitas yang tidak terpenuhi pada regresi linear sederhana 
+
+## Jawaban
+
+
+# Nomor 5
+
+## Soal
+
+Jelaskan gambar dibawah ini!
+
+![](nomor5.png)
+
+## Jawaban

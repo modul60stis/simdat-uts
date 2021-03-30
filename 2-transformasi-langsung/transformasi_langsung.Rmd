@@ -238,7 +238,7 @@ rand.f <- function(n, v1, v2){
 df1 <- 27
 df2 <- 23
 f <- rand.f(1000, df1, df2)
-head(t, 10)
+head(f, 10)
 ```
 
 ## Memvisualisasikan
