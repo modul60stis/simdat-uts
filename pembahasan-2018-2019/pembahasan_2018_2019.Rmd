@@ -1,0 +1,139 @@
+---
+title: "Pembahasan 2018/2019"
+author: "Tim Modul 60"
+date: "4/1/2021"
+output: rmdformats::downcute
+---
+
+
+```{r}
+library(ggplot2)
+```
+
+
+# Nomor 1
+
+## Soal
+
+Jelaskan tujuan dari simulasi, serta berikan minimal 2 contoh simulasi di bidang statistika.
+
+## Tujuan Simulasi
+
+1. Untuk menguji setiap aspek dari perubahan yang diinginkan tanpa menempatkan objek yang dipelajari pada posisi dimaksud dan hasil simulasi memungkinan kita memilih ukuran yang tepat. Contoh kasusnya, simulasi biasanya digunakan untuk menguji kekuatan rancang bangun suatu konstruksi. Misalnya jembatan dapat disimulasikan sebelum benar-benar memulai pembangunan riil di lapangan. 
+2. Untuk mengetahui mengapa suatu fenomena muncul. Mengapa suatu proses tidak berjalan sebagaimana mestinya. Anomali yang terjadi ada sistem yang disimulasi dapat diantisipasi sebelum diimplementasikan.
+3. Untuk mempelajari atau mengeksplorasi kemungkinan-kemungkinan pengembangan tanpa banyak mengeluarkan biaya dengan mengatur segala kemungkinan nilai-nilai dalam simulasi.
+4. Untuk mempercepat atau memperlambat suatu proses yang memungkinkan kita mengamatinya secara keseluruhan.
+5. Untuk mengetahui hubungan tentang variabel-variabel yang mempengaruhi suatu sistem yang kompleks.
+
+## Contoh Simulasi di bidang Statistika
+
+1. Membangkitkan data dengan distribusi dan parameter yang diketahui
+2. Memvisualisasikan sifat-sifat distribusi atau uji statistika sehingga menjadi lebih mudah dipahami.
+3. Uji statistika berbasis simulasi, jika dukungan teori tentang distribusi tidak cukup.
+
+# Nomor 2
+
+## Soal
+
+Pada suatu pengembangan algoritma khusus, anda membutuhkan untuk membangkitkan data berdistribusi Gamma. Jelaskan :
+
+a. Teori dari distribusi Gamma
+b. Pseudocode untuk membangkitkan data berdistribusi Gamma
+c. Implementasikan dengan R
+
+## Teori Distribusi Gaamma
+
+Distribusi Gamma adalah distribusi peluang kontinu yang banyak digunakan dalam berbagai bidang ilmu untuk memodelkan variabel kontinu yang selalu positif dan memiliki distribusi miring. Distribusi Gamma sering digunakan untuk memodelkan waktu tunggu hingga suatu event terjadi sebanyak $k$ kali. Berikut pdf dari distribusi Gamma
+
+$$
+f(x) = \frac{(\frac{x-\mu}{\beta})^{\gamma - 1}\exp{(-\frac{x-\mu}
+{\beta}})} {\beta\Gamma(\gamma)}  \hspace{.2in}  x \ge \mu; \gamma,
+\beta > 0
+$$
+
+dimana $\gamma$ merupakan shape parameter, $\mu$ merupakan location parameter $\beta$ merupakan scale parameter, dan $\Gamma$ merupakan fungsi dengan formula
+
+$$
+\Gamma(a) = \int_{0}^{\infty} {t^{a-1}e^{-t}dt}
+$$
+
+Selain itu distribusi Gamma juga dapat diperoleh dari transformasi distribusi Uniform. Misalnya $U_1,U_2, ..., U_\alpha$ berdistribusi $U(0,1)$ dan bersifat iid, maka 
+
+$$
+Gamma(\alpha, \beta) = -\frac{1}{\beta}(\ln{U_1} + \ln{U_2} + ... + \ln{U_\alpha})
+$$
+
+## Pseudocode
+
+1. Bangkitkan $U_1,U_2, ..., U_\alpha$, yang mana $U_i$ ~ $U(0,1)$ dan bersifat iid
+3. Lakukan tranformasi
+      $$
+Y = -\frac{1}{\beta}(\ln{U_1} + \ln{U_2} + ... + \ln{U_\alpha})
+$$
+4. Maka $Y$ adalah data dari Gamma(\alpha, \beta)
+
+## Implementasi R
+
+### Buat Fungsi
+```{r}
+rand.gamma <- function(n, alpha, beta){
+      y <- rep(0, n)
+      for(i in 1:alpha){
+            u <- runif(n)
+            y <- y + log(u)
+      }
+      -(1/beta) * y
+}
+```
+
+### Mencoba Fungsi
+
+Misalnya kita ingin membangkitkan data dari distribusi $Gamma(27, 3)$
+
+```{r}
+set.seed(72)
+alpha <- 27
+beta <- 3
+y <- rand.gamma(10000, alpha, beta)
+head(y, 10)
+```
+
+### Memvisualisasikan
+```{r}
+ggplot() +
+      geom_density(data = data.frame(x = y), 
+                   aes(x, color = "Hasil random"), size = 1) +
+      stat_function(fun = dgamma, n = 10000, args = list(shape = alpha, rate = beta), 
+                                size = 1, aes(color = "true distribution")) +
+      labs(x = "", y = "", title = "Gamma(27, 3) Distribution dengan n = 10000") +
+      theme_minimal() +
+      theme(legend.position = "bottom",
+            legend.title = element_blank(),
+            legend.box.margin = margin(-20, 0, 10, 0),
+            plot.title = element_text(hjust = 0.5))
+```
+
+
+Terlihat bahwa hasil random sudah sangat menyerupai distribusi yang sebenarnya
+
+
+# Nomor 3
+
+## Soal
+
+Lakukan simulasi yang memperlihatkan efek dari asumsi normalitas yang tidak terpenuhi pada Anova one-way
+
+## Jawaban
+
+
+
+# Nomor 4
+
+## Soal
+
+Lakukan Analisa data pada data country facts yang terdapat di dalam file CountryData.csv. Jelaskan langkah-langkah yang dilakukan serta interpretasikan hasil yang diperoleh
+
+## Jawaban
+
+Tidak dapat diparktekkan karena data `CountryData.csv` tidak ada. Jika pun nanti ada soal seperti ini bisa menjawabnya dengan membuat beberapa plot data kemudian meng interpertasikannya, seperti yang dilakukan saat mata kuliah komstat yaitu Data Wrangling 
+
