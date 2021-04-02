@@ -2,11 +2,13 @@
 title: "Pembahasan UTS 2017/2018"
 author: "Tim Modul 60"
 date: "3/30/2021"
-output: rmdformats::downcute
+output: html_document
 ---
 
-```{r}
+```{r message=FALSE, warning=FALSE}
 library(ggplot2)
+library(reshape2)
+library(dplyr)
 ```
 
 # Nomor 1
@@ -189,8 +191,217 @@ Terlihat bahwa perbedaan antara fungsi buatan sendiri dengan fungsi bawaan R san
 
 Buat algoritma boostrapping untuk pendugaan parameter regresi linear sederhana. Lakukan simulasi yang memperlihatkan efek dari asumsi normalitas yang tidak terpenuhi pada regresi linear sederhana 
 
-## Jawaban
+## Algoritma Bootstraping
 
+Algoritma yang digunakan sama seperti yang diajarkan di komstat
+
+### Teori Bootstraping
+
+Bootstrap adalah suatu metode yang dapat bekerja tanpa membutuhkan asumsi distribusi karena sampel asli digunakan sebagai populasi. Bootstrap dapat digunakan untuk mengatasi permasalahan dalam statistika baik masalah data yang sedikit, data yang menyimpang dari asumsinya maupun data yang tidak memiliki asumsi dalam distribusinya. Prosedur untuk melakukan bootstrap sebagai berikut 
+
+1. Menarik $n$-sampel acak dari suatu populasi sebanyak satu kali. (Mengambil sample $X$)
+2. Dari sampel yang didapat, lakukan resample dengan pengembalian (non-parametrik) atau ambil sub-sampel acak dari distribusi teoritis populasi yang diasumsikan dengan estimasi parameter dari data sampel yang didapat (parametrik)
+3. Dari sub-sampel yang ada, estimasikan nilai parameter yang ingin didapat, dinotasikan dengan $\hat{\theta}_{b1},\hat{\theta}_{b2}, ...,\hat{\theta}_{bB}$ , bentuk umumnya $\hat{\theta}_{bi}$
+4. Ulangi langkah 2 dan 3 sebanyak $B$ kali yang mungkin (direkomendasikan $B = 1000$ atau lebih untuk mengestimasi confidence Interval)
+5. Dari semua estimasi parameter sub-sampel $\hat{\theta}_{b1},\hat{\theta}_{b2}, ...,\hat{\theta}_{bB}$, hitung rata – ratanya untuk mendapatkan estimasi parameter dan standard deviasinya untuk nilai standard error
+
+### Implementasi di R
+
+#### Membuat Fungsi Sendiri
+```{r}
+bootstrap <- function(x, iter = 1000, FUN = "mean", alpa = 0.05, ...){
+      theta <- NULL
+      n <- length(x)
+      for(i in 1:iter){
+            my_sample <- sample(x, replace = TRUE)
+            theta[i] <- do.call(FUN, list(my_sample, ...))
+      }
+      rata2 <- mean(theta)
+      bias <-  mean(theta) - mean(x)
+      se <- sd(theta)
+      lower_confidence <- rata2 - qt(alpa/2, n -1, lower.tail = FALSE) * se
+      upper_confidence <- rata2 + qt(alpa/2, n -1, lower.tail = FALSE) * se
+      
+      list(theta = theta,
+           mean_theta = rata2,
+           bias = bias,
+           se = se,
+           lower_ci = lower_confidence,
+           upper_ci = upper_confidence,
+           alpa = alpa,
+           iter = iter,
+           FUN = substitute(FUN))
+}
+```
+
+#### Mencoba Fungsi Buatan
+```{r}
+set.seed(10127)
+x <- rnorm(100, mean = 20, sd = 4)
+boot <- bootstrap(x, FUN = "mean")
+boot[-1]
+```
+
+```{r}
+hist(boot$theta)
+```
+
+## Efek Normalitas Pada Regresi I
+
+Jawaban ini berdasarkan modul tahun sebelumnya dan saya juga tidak mengerti interpertasi dari hasilnya (hanya copas kode dan dimodul sebelumnya juga tidak ada penjelasannya)
+
+### Error Normal
+```{r}
+set.seed(1)
+x1 <- runif(500) * 5
+e1 <- rnorm(500)
+
+y1 <- 3 + 7 * x1 + e1
+
+data1 <- data.frame(x1, y1)
+make_var <- function(sample, data) {
+  tmp <- NULL
+  for (i in 1:30) {
+    fit <- lm(y1 ~ x1, data = data[sample(nrow(data), sample),])
+    tmp[i] = var(resid(fit))
+  }
+  return(tmp)
+}
+
+data11 <- data.frame(index = 1:30)
+for (i in seq(100, 300, 50)) {
+   data_tmp1 <- make_var(i, data1)
+   data11 <- mutate(data11,!!paste("sample", i) := data_tmp1)
+}
+
+tmp.plot.1 <- melt(data11, id.vars = 'index')
+ggplot(tmp.plot.1, 
+       aes(x = value, colour = variable)) +
+   geom_density() + 
+   geom_vline(xintercept = var(e1)) +
+   ggtitle("Consistent Variance") +
+   theme_minimal()
+```
+
+### Error Tidak Normal
+```{r}
+set.seed(1)
+x1 <- runif(500) * 5
+e1 <- rchisq(500, 5)
+
+y1 <- 3 + 7 * x1 + e1
+
+data1 <- data.frame(x1, y1)
+make_var <- function(sample, data) {
+  tmp <- NULL
+  for (i in 1:30) {
+    fit <- lm(y1 ~ x1, data = data[sample(nrow(data), sample),])
+    tmp[i] = var(resid(fit))
+  }
+  return(tmp)
+}
+
+data11 <- data.frame(index = 1:30)
+for (i in seq(100, 300, 50)) {
+   data_tmp1 <- make_var(i, data1)
+   data11 <- mutate(data11,!!paste("sample", i) := data_tmp1)
+}
+
+tmp.plot.1 <- melt(data11, id.vars = 'index')
+ggplot(tmp.plot.1, 
+       aes(x = value, colour = variable)) +
+   geom_density() + 
+   geom_vline(xintercept = var(e1)) +
+   ggtitle("Inconsistent Variance") +
+   theme_minimal()
+```
+
+## Efek Normalitas Pada Regresi II
+
+Disimulasi ini akan melihat nilai p-value dari estimasi parameter regresi dan nilai r squarenya
+
+### Buat Fungsi
+```{r}
+simulateRegresi <- function(a, b, errorNonNorm, n = 100, loop = 100){
+   normPValue <- NULL
+   normR2 <- NULL
+   normEstimasi <- NULL
+   nonNormPValue <- NULL
+   nonNormR2 <- NULL
+   nonNormEstimasi <- NULL
+   
+   errorNorm <- rnorm(10000)
+   
+   for (i in 1:loop){
+      e1 <- sample(errorNorm, size = n)
+      e2 <- sample(errorNonNorm, size = n)
+      x <- runif(n)
+   
+      y1 <- a*x + b + e1
+      y2 <- a*x + b + e2
+      df <- data.frame(x, y1, y2)
+   
+      model1 <- summary(lm(y1 ~ x, data = df))
+      normEstimasi[i] <- model1$coefficients[2]
+      normPValue[i] <- model1$coefficients[8]
+      normR2[i] <- model1$r.squared
+      
+      model2 <- summary(lm(y2 ~ x, data = df))   
+      nonNormEstimasi[i] <- model2$coefficients[2]
+      nonNormPValue[i] <- model2$coefficients[8]
+      nonNormR2[i] <- model2$r.squared
+   }
+   data.frame(p_value_norm = normPValue,
+              p_value_non_norm  = nonNormPValue,
+              estimasi_norm = normEstimasi,
+              estimasi_non_norm = nonNormEstimasi,
+              r2_norm = normR2,
+              r2_non_norm = nonNormR2)
+}
+```
+
+### Coba Fungsi
+
+Misalnya errornya akan digunakan dari distrbusi $F(1, 4)$ dengan model regresi sebagai berikut
+
+$$Y_i = 7X_i + 72 + \epsilon_i $$
+
+```{r}
+set.seed(32)
+errorF <- rf(10000, 1, 4)
+hist(errorF)
+```
+
+```{r}
+loop <- 100
+n <- 100
+a <- 7
+b <- 72
+sim <- simulateRegresi(a, n, errorF, n, loop)
+round(sapply(sim, mean), 3)
+```
+
+Error yang digunakan sangat menceng kanan dan tidak normal dan terlihat bahwa p-value dari model yang menggunakan error dari distribusi $F(1, 4)$ signifikan di 5% tetapi memiliki nilai rata-rata R-Squared yang sangat kecil
+
+Kita coba lagi dengan error dari $F(27, 10)$
+
+```{r}
+errorF <- rf(10000, 27, 10)
+hist(errorF)
+```
+
+```{r}
+loop <- 100
+n <- 100
+a <- 7
+b <- 72
+sim <- simulateRegresi(a, n, errorF, n, loop)
+round(sapply(sim, mean), 3)
+```
+
+Akan tetapi terlihat ketika dignakan $F(27, 10)$ ternyata modelnya jauh lebih bagus dari model yang memiliki error normal. 
+
+**Jadi kesimpulannya apa?** Entah saya juga tak mengerti :v, silahkan coba error dengan distribusi lain! Saya sudah mencobanya tetap saja nilai p-value yang dihasilkan akan kecil kecuali error yang digunakan sangat menceng  seperti $F(1,1), F(2,2)$ dan sebagainya. Entah metode simulasi yang saya gunakan salah atau seperti apa, saya kurang mengerti. **Kalau ada yang tau, MOHON BANTUANNYA UNTUK DIKOREKSI!**
 
 # Nomor 5
 
@@ -201,3 +412,14 @@ Jelaskan gambar dibawah ini!
 ![](nomor5.png)
 
 ## Jawaban
+
+Rantai Markov digunakan untuk peramalan perubahan pada variabel-variabel tertentu berdasarkan pengetahuan dari perubahan sebelumnya. Seperti gambar pada soal, ide dasarnya adalah menggambar lingkaran untuk setiap kata, panah antara masing-masing dua kata dengan transisi, dan label masing-masing panah yang menggambarkan probabilitas (P) untuk menuju sentence, paragraph, line atau message
+
+#### Catatan
+
+Kurang ngerti juga saya, silahkan baca sendiri disini
+
+1. [Pengertian Markov Chain dan Contoh Pengaplikasiannya](https://www.pengadaanbarang.co.id/2020/10/pengertian-markov-chain-dan-contoh.html)
+2. [Markov Chain](https://socs.binus.ac.id/2013/06/30/markov-chain/)
+3. [Introduction to Markov Chains](https://towardsdatascience.com/introduction-to-markov-chains-50da3645a50d)
+4. [A Gentle Introduction to Markov Chain Monte Carlo for Probability](https://machinelearningmastery.com/markov-chain-monte-carlo-for-probability/)
