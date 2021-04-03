@@ -1750,6 +1750,7 @@ Prism.languages.r={comment:/#.*/,string:{pattern:/(['"])(?:\\.|(?!\1)[^\\\r\n])*
             <li><a href="#nomor-3">Nomor 3</a><ul>
             <li><a href="#soal-2">Soal</a></li>
             <li><a href="#jawaban">Jawaban</a></li>
+            <li><a href="#catatan">Catatan</a></li>
             </ul></li>
             <li><a href="#nomor-4">Nomor 4</a><ul>
             <li><a href="#soal-3">Soal</a></li>
@@ -1890,6 +1891,89 @@ head(y, 10)</code></pre>
 </div>
 <div id="jawaban" class="section level2">
 <h2>Jawaban</h2>
+<p><strong>Jawaban dibawah ini berdasarkan jawaban dari modul tahun sebelumnya</strong></p>
+<p>Pertama, kita akan lakukan simulasi pada data berdistribusi normal sebagai pembanding dengan simulasi data tidak berdistribusi normal nantinya.</p>
+<pre class="r"><code>p &lt;- c()
+set.seed(123)
+for (i in 1:1000) {
+   test &lt;- data.frame(Distribusi = c(rep(&quot;Kategori 1&quot;,13), rep(&quot;Kategori 2&quot;,20), rep(&quot;Kategori 3&quot;,7)), Angka = rnorm(40,10,5))
+   p[i] &lt;- summary(aov(Angka~Distribusi, data = test))[[1]]$&#39;Pr(&gt;F)&#39;[1]
+}
+
+tapply(test$Angka, test$Distribusi, shapiro.test)</code></pre>
+<pre><code>## $`Kategori 1`
+## 
+##  Shapiro-Wilk normality test
+## 
+## data:  X[[i]]
+## W = 0.92166, p-value = 0.2641
+## 
+## 
+## $`Kategori 2`
+## 
+##  Shapiro-Wilk normality test
+## 
+## data:  X[[i]]
+## W = 0.94748, p-value = 0.3304
+## 
+## 
+## $`Kategori 3`
+## 
+##  Shapiro-Wilk normality test
+## 
+## data:  X[[i]]
+## W = 0.90933, p-value = 0.3912</code></pre>
+<p>Data berdistribusi normal pada seluruh kategori.</p>
+<pre class="r"><code>sum(p&lt;0.05)</code></pre>
+<pre><code>## [1] 44</code></pre>
+<p>Terlihat bahwa dengan iterasi sebanyak 1000 kali, p-value yang dihasilkan ada sebanyak 44.* Hal ini menunjukkan dearah tolak H0 (maksimal 50 dari 1000 pengujian)</p>
+<p>Selanjutnya kita akan lakukan simulasi pada data tidak berdistribusi normal</p>
+<pre class="r"><code>p &lt;- c()
+set.seed(123)
+for (i in 1:1000) {
+   test &lt;- data.frame(Distribusi = c(rep(&quot;Kategori 1&quot;,13), rep(&quot;Kategori 2&quot;,20), rep(&quot;Kategori 3&quot;,7)), Angka = c(rchisq(13,3), rf(20,11,15),
+   runif(7,0,5)))
+   p[i] &lt;- summary(aov(Angka~Distribusi, data = test))[[1]]$&#39;Pr(&gt;F)&#39;[1]
+}
+
+tapply(test$Angka, test$Distribusi, shapiro.test)</code></pre>
+<pre><code>## $`Kategori 1`
+## 
+##  Shapiro-Wilk normality test
+## 
+## data:  X[[i]]
+## W = 0.85516, p-value = 0.03327
+## 
+## 
+## $`Kategori 2`
+## 
+##  Shapiro-Wilk normality test
+## 
+## data:  X[[i]]
+## W = 0.93842, p-value = 0.2238
+## 
+## 
+## $`Kategori 3`
+## 
+##  Shapiro-Wilk normality test
+## 
+## data:  X[[i]]
+## W = 0.93606, p-value = 0.6036</code></pre>
+<p>Data tidak normal pada Kategori 1. Simulasi data tidak normal dapat dilanjutkan pada “p”</p>
+<pre class="r"><code>sum(p&lt;0.05)</code></pre>
+<pre><code>## [1] 885</code></pre>
+<p>Terlihat bahwa dengan iterasi sebanyak 1000 kali, p-value yang dihasilkan ada sebanyak 885. Hal ini menunjukkan bahwa pelanggaran asumsi normalitas pada ANOVA akan mengakibatkan daerah tolak H0-nya lebih besar (maksimal 50 dari 1000 pengujian)</p>
+</div>
+<div id="catatan" class="section level2">
+<h2>Catatan</h2>
+<p>Ada beberapa hal yang masih mengganjal dari simulasi diatas</p>
+<ol style="list-style-type: decimal">
+<li>Anova kan menguji apakah rata-rata kategori 1-3 memiliki rata-rata yang sama. Nah apakah perlu rata-rata kategori 1 pada percobaan 1 harus dijaga tetap sama dengan rata-rata kategori 1 pada percobaan 2, begitu juga dengan rata-rata pada kategori 2 dan 3?</li>
+<li>Yang diuji shapiro wilk pada simulasi diatas hanya pada data random loop ke 1000.</li>
+<li>Bukannya ketika ingin melakukan simulasi kita harus menjaga kondisi selain yang diuji tetap sama? Dalam kasus ini berarti kita harus dapat merancang sebuah percobaan dimana percobaan 1 dan 2 memiliki data dengan properti yang hanya berbeda pada normalitasnya saja (?)</li>
+<li>Apakah p-value sudah cocok untuk menjadi alat pengukuran performa dari simulasi ini? Apakah power test bisa digunakan untuk alat mengukuran performa dari simulasi ini?</li>
+</ol>
+<p><strong>Kalau ada yang tau, mohon bantuannya!!!</strong></p>
 </div>
 </div>
 <div id="nomor-4" class="section level1">

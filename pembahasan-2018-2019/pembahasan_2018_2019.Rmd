@@ -2,7 +2,7 @@
 title: "Pembahasan 2018/2019"
 author: "Tim Modul 60"
 date: "4/1/2021"
-output: rmdformats::downcute
+output: html_document
 ---
 
 
@@ -125,7 +125,62 @@ Lakukan simulasi yang memperlihatkan efek dari asumsi normalitas yang tidak terp
 
 ## Jawaban
 
+**Jawaban dibawah ini berdasarkan jawaban dari modul tahun sebelumnya**
 
+
+Pertama, kita akan lakukan simulasi pada data berdistribusi normal sebagai pembanding dengan simulasi data tidak berdistribusi normal nantinya.
+
+```{r}
+p <- c()
+set.seed(123)
+for (i in 1:1000) {
+   test <- data.frame(Distribusi = c(rep("Kategori 1",13), rep("Kategori 2",20), rep("Kategori 3",7)), Angka = rnorm(40,10,5))
+   p[i] <- summary(aov(Angka~Distribusi, data = test))[[1]]$'Pr(>F)'[1]
+}
+
+tapply(test$Angka, test$Distribusi, shapiro.test)
+```
+
+Data berdistribusi normal pada seluruh kategori.
+
+```{r}
+sum(p<0.05)
+```
+
+Terlihat bahwa dengan iterasi sebanyak 1000 kali, p-value yang dihasilkan ada sebanyak 44.* Hal ini menunjukkan dearah tolak H0 (maksimal 50 dari 1000 pengujian)
+
+Selanjutnya kita akan lakukan simulasi pada data tidak berdistribusi normal
+
+```{r}
+p <- c()
+set.seed(123)
+for (i in 1:1000) {
+   test <- data.frame(Distribusi = c(rep("Kategori 1",13), rep("Kategori 2",20), rep("Kategori 3",7)), Angka = c(rchisq(13,3), rf(20,11,15),
+   runif(7,0,5)))
+   p[i] <- summary(aov(Angka~Distribusi, data = test))[[1]]$'Pr(>F)'[1]
+}
+
+tapply(test$Angka, test$Distribusi, shapiro.test)
+```
+
+Data tidak normal pada Kategori 1. Simulasi data tidak normal dapat dilanjutkan pada “p”
+
+```{r}
+sum(p<0.05)
+```
+
+Terlihat bahwa dengan iterasi sebanyak 1000 kali, p-value yang dihasilkan ada sebanyak 885. Hal ini menunjukkan bahwa pelanggaran asumsi normalitas pada ANOVA akan mengakibatkan daerah tolak H0-nya lebih besar (maksimal 50 dari 1000 pengujian) 
+
+## Catatan
+
+Ada beberapa hal yang masih mengganjal dari simulasi diatas
+
+1. Anova kan menguji apakah rata-rata kategori 1-3 memiliki rata-rata yang sama. Nah apakah perlu rata-rata kategori 1 pada percobaan 1 harus dijaga tetap sama dengan rata-rata kategori 1 pada percobaan 2, begitu juga dengan rata-rata pada kategori 2 dan 3?
+2. Yang diuji shapiro wilk pada simulasi diatas hanya pada data random loop ke 1000.
+3. Bukannya ketika ingin melakukan simulasi kita harus menjaga kondisi selain yang diuji tetap sama? Dalam kasus ini berarti kita harus dapat merancang sebuah percobaan dimana percobaan 1 dan 2 memiliki data dengan properti yang hanya berbeda pada normalitasnya saja (?)
+4. Apakah p-value sudah cocok untuk menjadi alat pengukuran performa dari simulasi ini? Apakah power test bisa digunakan untuk alat mengukuran performa dari simulasi ini?
+
+**Kalau ada yang tau, mohon bantuannya!!!**
 
 # Nomor 4
 
