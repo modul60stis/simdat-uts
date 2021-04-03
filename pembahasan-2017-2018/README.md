@@ -544,6 +544,8 @@ sangat menceng seperti *F*(1, 1), *F*(2, 2) dan sebagainya. Entah metode
 simulasi yang saya gunakan salah atau seperti apa, saya kurang mengerti.
 **Kalau ada yang tau, MOHON BANTUANNYA UNTUK DIKOREKSI!**
 
+**Jawaban by Arina Mana Sikana**, [disini](https://github.com/modul60stis/simdat-uts/tree/main/4-efek-normalitas#efek-normalitas-)
+
 Nomor 5
 =======
 

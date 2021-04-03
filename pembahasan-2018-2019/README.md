@@ -285,6 +285,8 @@ Ada beberapa hal yang masih mengganjal dari simulasi diatas
 
 **Kalau ada yang tau, mohon bantuannya!!!**
 
+**Jawaban by Arina Mana Sikana**, [disini](https://github.com/modul60stis/simdat-uts/tree/main/4-efek-normalitas#efek-normalitas-)
+
 Nomor 4
 =======
 

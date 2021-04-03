@@ -2,7 +2,7 @@
 title: "Pembahasan UTS 2017/2018"
 author: "Tim Modul 60"
 date: "3/30/2021"
-output: html_document
+output: rmdformats::downcute
 ---
 
 ```{r message=FALSE, warning=FALSE}
@@ -402,6 +402,8 @@ round(sapply(sim, mean), 3)
 Akan tetapi terlihat ketika dignakan $F(27, 10)$ ternyata modelnya jauh lebih bagus dari model yang memiliki error normal. 
 
 **Jadi kesimpulannya apa?** Entah saya juga tak mengerti :v, silahkan coba error dengan distribusi lain! Saya sudah mencobanya tetap saja nilai p-value yang dihasilkan akan kecil kecuali error yang digunakan sangat menceng  seperti $F(1,1), F(2,2)$ dan sebagainya. Entah metode simulasi yang saya gunakan salah atau seperti apa, saya kurang mengerti. **Kalau ada yang tau, MOHON BANTUANNYA UNTUK DIKOREKSI!**
+
+**Jawaban by Arina Mana Sikana**, [disini](https://github.com/modul60stis/simdat-uts/tree/main/4-efek-normalitas#efek-normalitas-)
 
 # Nomor 5
 

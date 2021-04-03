@@ -2,7 +2,7 @@
 title: "Pembahasan 2018/2019"
 author: "Tim Modul 60"
 date: "4/1/2021"
-output: html_document
+output: rmdformats::downcute
 ---
 
 
@@ -182,6 +182,8 @@ Ada beberapa hal yang masih mengganjal dari simulasi diatas
 
 **Kalau ada yang tau, mohon bantuannya!!!**
 
+**Jawaban by Arina Mana Sikana**, [disini](https://github.com/modul60stis/simdat-uts/tree/main/4-efek-normalitas#efek-normalitas-)
+
 # Nomor 4
 
 ## Soal
@@ -191,4 +193,5 @@ Lakukan Analisa data pada data country facts yang terdapat di dalam file Country
 ## Jawaban
 
 Tidak dapat diparktekkan karena data `CountryData.csv` tidak ada. Jika pun nanti ada soal seperti ini bisa menjawabnya dengan membuat beberapa plot data kemudian meng interpertasikannya, seperti yang dilakukan saat mata kuliah komstat yaitu Data Wrangling 
+
 
