@@ -1,5 +1,4 @@
-Simulasi Pelanggaran Asumsi Normalitas Pada Regresi Linear Sederhana
-====================================================================
+# Efek Normalitas <img src="https://img.shields.io/badge/r-%23276DC3.svg?&style=for-the-badge&logo=r&logoColor=white"/> 
 
 **Code by Arina Mana Sikana**
 
@@ -8,6 +7,9 @@ library(dplyr)
 library(reshape2)
 library(ggplot2)
 ```
+
+Simulasi Pelanggaran Asumsi Normalitas Pada Regresi Linear Sederhana
+====================================================================
 
 
 Model regresi linear sederhana adalah
