@@ -2,12 +2,60 @@
 title: "Transformasi Tak Langsung"
 author: "Tim Modul 60"
 date: "3/26/2021"
-output: html_document
+output: rmdformats::downcute
 ---
 
 ```{r}
 library(ggplot2)
 ```
+
+# Membangkitkan Variabel Diskrit
+
+## Algoritma
+
+Misalkan $X$ adalah random variabel diskrit yang diatur $[0, 1, 2, 3, ...]$ dengan cdf $F$ dan pdf $p$. Algoritma dibawah ini akan menggunakan uniform $U$ untuk mengembalikan variabel $X$ yang memiliki cdf $F$. Algoritma dibawah ini menggunakan metode Table Look Up
+
+```
+   Let U = RandomUniform(1, 0, 1)
+   Let i = 1
+   while (F(xi) < U)
+      i++
+   Return Xi
+```
+
+## Implementasi di R
+
+```{r}
+rand.diskrit <- function(Fx, ...){
+   u <- runif(1)
+   i <- 1
+   while(Fx(i, ...) < u ){
+      i <- i + 1
+   }
+   i 
+}
+```
+
+### Random Binomial
+
+**Catatan** : untuk generate distribusi diksrit lainnya tinggal ganti `pbinom` menjadi fungsi kumulatif yang lainnya, misalnya `ppois`
+
+```{r}
+rand.binom <- function(n, ...){
+   x <- c()
+   for(i in 1:n){
+      x[i] <- rand.diskrit(pbinom, ...)
+   }
+   x
+}
+```
+
+### Generate Binomial
+```{r}
+rand.binom(100, size = 40, p = 0.5)
+```
+
+
 
 # Metode Inverse
 
