@@ -2,7 +2,9 @@
 title: "Transformasi Tak Langsung"
 author: "Tim Modul 60"
 date: "3/26/2021"
-output: rmdformats::downcute
+output: 
+   md_document:
+    variant: markdown_github
 ---
 
 ```{r}

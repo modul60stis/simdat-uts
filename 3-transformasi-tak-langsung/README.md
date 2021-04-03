@@ -3,6 +3,62 @@
 ``` r
 library(ggplot2)
 ```
+Membangkitkan Variabel Diskrit
+==============================
+
+### Algoritma
+
+
+Misalkan *X* adalah random variabel diskrit yang diatur
+\[0, 1, 2, 3, ...\] dengan cdf *F* dan pdf *p*. Algoritma dibawah ini
+akan menggunakan uniform *U* untuk mengembalikan variabel *X* yang
+memiliki cdf *F*. Algoritma dibawah ini menggunakan metode Table Look Up
+
+       Let U = RandomUniform(1, 0, 1)
+       Let i = 1
+       while (F(xi) < U)
+          i++
+       Return Xi
+
+### Implementasi di R
+
+
+``` r
+rand.diskrit <- function(Fx, ...){
+   u <- runif(1)
+   i <- 1
+   while(Fx(i, ...) < u ){
+      i <- i + 1
+   }
+   i 
+}
+```
+
+#### Random Binomial
+
+**Catatan** : untuk generate distribusi diksrit lainnya tinggal ganti
+`pbinom` menjadi fungsi kumulatif yang lainnya, misalnya `ppois`
+
+``` r
+rand.binom <- function(n, ...){
+   x <- c()
+   for(i in 1:n){
+      x[i] <- rand.diskrit(pbinom, ...)
+   }
+   x
+}
+```
+
+#### Generate Binomial
+
+``` r
+rand.binom(100, size = 40, p = 0.5)
+```
+
+    ##   [1] 24 18 19 22 24 22 19 24 20 18 24 25 23 22 22 21 26 20 19 17 19 17 19 19 24
+    ##  [26] 22 24 23 16 22 21 14 19 21 26 21 17 23 20 22 18 24 15 18 21 22 22 21 21 13
+    ##  [51] 25 21 15 16 14 20 25 17 25 12 20 15 20 15 23 20 21 19 18 23 20 17 20 18 23
+    ##  [76] 28 23 27 18 15 21 23 16 19 19 22 14 20 18 21 29 19 13 19 17 18 25 17 19 17
 
 Metode Inverse
 ==============
