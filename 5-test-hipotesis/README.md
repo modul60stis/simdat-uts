@@ -289,7 +289,7 @@ table.gap <- function(x){
       df <- data.frame(table(panjang))
       df$panjang <- as.numeric(as.character(df$panjang))
       
-      df$sx <- cumsum(df$Freq) / 100
+      df$sx <- cumsum(df$Freq) / sum(df$Freq)
       df$fx <- cumsum(sapply(df$panjang, function(p) fx(x, p)))
       df$selisih <- abs(df$sx - df$fx)
       df
