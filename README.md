@@ -1,6 +1,5 @@
 # Simulasi Data - UTS <img src="https://img.shields.io/badge/r-%23276DC3.svg?&style=for-the-badge&logo=r&logoColor=white"/> 
 
-Tinggal pembahasan soal, pantau terus githubnya ya gaes, mohon maaf lambat
 
 ## Mind Map
 ![png](mindmap.png)
